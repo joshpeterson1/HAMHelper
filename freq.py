@@ -84,14 +84,18 @@ freq_entry.bind("<KeyRelease>", calculate_wavelength)
 freq_output_label = tk.Label(freq_tab, text="Input")
 freq_output_label.pack()
 
-# Instructional text with formatting
-instruction_text = tk.Label(freq_tab, text="Enter Freq in MHz to see approx bandwidth in meters or vice versa", font=("Arial", 10))
-instruction_text.pack(pady=(10, 0))  # Add padding above the label
+# Instructional text with separate labels for formatting
+instruction_text_1 = tk.Label(freq_tab, text="Enter Freq ")
+instruction_text_2 = tk.Label(freq_tab, text="in MHz", font=("Arial", 10, "italic underline"))
+instruction_text_3 = tk.Label(freq_tab, text=" to see approx bandwidth ")
+instruction_text_4 = tk.Label(freq_tab, text="in meters", font=("Arial", 10, "italic underline"))
+instruction_text_5 = tk.Label(freq_tab, text=" or vice versa")
 
-# Apply formatting to specific parts of the label
-instruction_text.tag_configure("italic_underline", font=("Arial", 10, "italic underline"))
-instruction_text.tag_add("italic_underline", "1.12", "1.15")  # "MHz"
-instruction_text.tag_add("italic_underline", "1.42", "1.49")  # "meters"
+instruction_text_1.pack(side=tk.LEFT)
+instruction_text_2.pack(side=tk.LEFT)
+instruction_text_3.pack(side=tk.LEFT)
+instruction_text_4.pack(side=tk.LEFT)
+instruction_text_5.pack(side=tk.LEFT)
 
 # Ohm's Law Tab
 ohms_tab = ttk.Frame(tab_control)
