@@ -59,14 +59,14 @@ def on_close():
     root.destroy()
 
 root = tk.Tk()
-root.title("Radio Helper")
+root.title("Ham Companion")
 root.iconbitmap('freq.ico')  # Set the window icon
 
 # Set the window size
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
-window_width = int(screen_width * 0.1)
-window_height = int(screen_height * 0.15)
+window_width = int(screen_width * 0.105)
+window_height = int(screen_height * 0.17)
 root.geometry(f"{window_width}x{window_height}")
 style = ttk.Style(root)
 style.configure('bottomtab.TNotebook', tabposition='sw')
@@ -84,19 +84,16 @@ freq_entry.bind("<KeyRelease>", calculate_wavelength)
 freq_output_label = tk.Label(freq_tab, text="Input")
 freq_output_label.pack()
 
-# Instructional text with separate labels for formatting
-instruction_text_1 = tk.Label(freq_tab, text="Enter Freq ")
-instruction_text_2 = tk.Label(freq_tab, text="in MHz", font=("Arial", 10, "italic underline"))
-instruction_text_3 = tk.Label(freq_tab, text=" to see approx bandwidth ")
-instruction_text_4 = tk.Label(freq_tab, text="in meters", font=("Arial", 10, "italic underline"))
-instruction_text_5 = tk.Label(freq_tab, text=" or vice versa")
-
-instruction_text_1.pack(side=tk.LEFT)
-instruction_text_2.pack(side=tk.LEFT)
-instruction_text_3.pack(side=tk.LEFT)
-instruction_text_4.pack(side=tk.LEFT)
-instruction_text_5.pack(side=tk.LEFT)
-
+# Instructional text with rich formatting using Text widget
+instruction_text = tk.Text(freq_tab, height=3, wrap='word', borderwidth=0)
+instruction_text.tag_configure("italic_underline", font=("Arial", 10, "italic underline"))
+instruction_text.insert(tk.END, "Enter Freq ")
+instruction_text.insert(tk.END, "in MHz", "italic_underline")
+instruction_text.insert(tk.END, " to see approx bandwidth ")
+instruction_text.insert(tk.END, "in meters", "italic_underline")
+instruction_text.insert(tk.END, " or vice versa.")
+instruction_text.config(state=tk.DISABLED)  # Make the text widget read-only
+instruction_text.pack(pady=(10, 0))
 # Ohm's Law Tab
 ohms_tab = ttk.Frame(tab_control)
 tab_control.add(ohms_tab, text='Ohms Law')
