@@ -1,0 +1,4 @@
+[Settings]
+always_on_top = False
+opacity = 1.0
+

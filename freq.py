@@ -11,11 +11,24 @@ config = configparser.ConfigParser()
 config.read(config_file)
 
 def save_config():
+    config['Settings'] = {
+        'always_on_top': always_on_top_var.get(),
+        'opacity': opacity_scale.get()
+    }
     with open(config_file, 'w') as configfile:
         config.write(configfile)
 
 def load_config():
-    if 'Settings' in config:
+    # Check if the config file exists, if not, create it with default values
+    if not os.path.exists(config_file):
+        config['Settings'] = {
+            'always_on_top': False,
+            'opacity': 1.0
+        }
+        with open(config_file, 'w') as configfile:
+            config.write(configfile)
+    else:
+        config.read(config_file)
         always_on_top_var.set(config.getboolean('Settings', 'always_on_top', fallback=False))
         opacity_scale.set(config.getfloat('Settings', 'opacity', fallback=1.0))
         update_opacity(opacity_scale.get())
@@ -39,6 +52,11 @@ def toggle_always_on_top():
 # Function to update opacity
 def update_opacity(value):
     root.attributes('-alpha', float(value))
+
+
+def on_close():
+    save_config()
+    root.destroy()
 
 root = tk.Tk()
 root.title("Radio Helper")
@@ -93,6 +111,6 @@ tab_control.pack(expand=1, fill="both")
 load_config()
 
 # Save config on close
-root.protocol("WM_DELETE_WINDOW", save_config)
+root.protocol("WM_DELETE_WINDOW", on_close)
 
 root.mainloop()
