@@ -1,5 +1,25 @@
 import tkinter as tk
 from tkinter import ttk
+import configparser
+import os
+
+# Configuration file path
+config_file = 'config.txt'
+
+# Load configuration
+config = configparser.ConfigParser()
+config.read(config_file)
+
+def save_config():
+    with open(config_file, 'w') as configfile:
+        config.write(configfile)
+
+def load_config():
+    if 'Settings' in config:
+        always_on_top_var.set(config.getboolean('Settings', 'always_on_top', fallback=False))
+        opacity_scale.set(config.getfloat('Settings', 'opacity', fallback=1.0))
+        update_opacity(opacity_scale.get())
+        toggle_always_on_top()
 
 # Function to calculate wavelength
 def calculate_wavelength(event):
@@ -68,5 +88,11 @@ opacity_scale.set(1.0)  # Set default opacity to 100%
 opacity_scale.pack()
 
 tab_control.pack(expand=1, fill="both")
+
+# Load config and apply settings
+load_config()
+
+# Save config on close
+root.protocol("WM_DELETE_WINDOW", save_config)
 
 root.mainloop()
