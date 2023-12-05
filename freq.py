@@ -30,9 +30,11 @@ screen_height = root.winfo_screenheight()
 window_width = int(screen_width * 0.1)
 window_height = int(screen_height * 0.15)
 root.geometry(f"{window_width}x{window_height}")
+style = ttk.Style(root)
+style.configure('bottomtab.TNotebook', tabposition='sw')
 
 # Create the tab control
-tab_control = ttk.Notebook(root)
+tab_control = ttk.Notebook(root, style='bottomtab.TNotebook')
 
 # Frequency Tab
 freq_tab = ttk.Frame(tab_control)
