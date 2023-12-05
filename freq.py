@@ -78,10 +78,20 @@ tab_control = ttk.Notebook(root, style='bottomtab.TNotebook')
 freq_tab = ttk.Frame(tab_control)
 tab_control.add(freq_tab, text='Freq')
 freq_entry = tk.Entry(freq_tab)
-freq_entry.pack()
+freq_entry.pack(pady=5)  # Add vertical padding
 freq_entry.bind("<KeyRelease>", calculate_wavelength)
-freq_output_label = tk.Label(freq_tab, text="")
+
+freq_output_label = tk.Label(freq_tab, text="Input")
 freq_output_label.pack()
+
+# Instructional text with formatting
+instruction_text = tk.Label(freq_tab, text="Enter Freq in MHz to see approx bandwidth in meters or vice versa", font=("Arial", 10))
+instruction_text.pack(pady=(10, 0))  # Add padding above the label
+
+# Apply formatting to specific parts of the label
+instruction_text.tag_configure("italic_underline", font=("Arial", 10, "italic underline"))
+instruction_text.tag_add("italic_underline", "1.12", "1.15")  # "MHz"
+instruction_text.tag_add("italic_underline", "1.42", "1.49")  # "meters"
 
 # Ohm's Law Tab
 ohms_tab = ttk.Frame(tab_control)
