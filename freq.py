@@ -248,6 +248,39 @@ def reset_power_fields():
     pwr_p_to_p_entry.config(bg='white')
     pwr_resistance_entry.config(bg='white')
 
+def calculate_rcl():
+    # Process the entries for R, C, and L
+    r_values = [float(val.strip()) for val in rcl_r_entry.get().replace(',', '').split(';') if val]
+    c_values = [float(val.strip()) for val in rcl_c_entry.get().replace(',', '').split(';') if val]
+    l_values = [float(val.strip()) for val in rcl_l_entry.get().replace(',', '').split(';') if val]
+
+    # Perform calculations based on series/parallel selection
+    if rcl_series_parallel_var.get() == "series":
+        # Series calculations
+        r_total = sum(r_values)
+        c_total = 1 / sum([1 / c for c in c_values if c != 0]) if c_values else 0
+        l_total = sum(l_values)
+    else:
+        # Parallel calculations
+        r_total = 1 / sum([1 / r for r in r_values if r != 0]) if r_values else 0
+        c_total = sum(c_values)
+        l_total = 1 / sum([1 / l for l in l_values if l != 0]) if l_values else 0
+
+    # Update the display with calculated values
+    conversion_output.config(text=f"R: {r_total}, C: {c_total}, L: {l_total}")
+
+# Function to handle unit conversion
+def convert_units():
+    # Conversion logic
+    unit_factors = {
+        "giga": 1e9, "mega": 1e6, "kilo": 1e3, "base": 1,
+        "milli": 1e-3, "micro": 1e-6, "nano": 1e-9, "pico": 1e-12
+    }
+    base_value = float(unit_conversion_entry.get()) * unit_factors[unit_prefix_var.get()]
+    converted_values = {k: base_value / v for k, v in unit_factors.items()}
+    conversion_text = ", ".join([f"{k}: {v:.3g}" for k, v in converted_values.items()])
+    rcl_results_label.config(text=f"Converted values: {conversion_text}")
+
 
 
 # Function to toggle always on top
@@ -281,7 +314,13 @@ style.configure('bottomtab.TNotebook', tabposition='sw')
 # Create the tab control
 tab_control = ttk.Notebook(root, style='bottomtab.TNotebook')
 
-# Frequency Tab
+
+
+# =========================================================================================
+# =========================================================================================
+# Frequency Tab     =======================================================================
+# =========================================================================================
+# =========================================================================================
 freq_tab = ttk.Frame(tab_control)
 tab_control.add(freq_tab, text='Freq')
 freq_entry = tk.Entry(freq_tab)
@@ -303,7 +342,12 @@ instruction_text.config(state=tk.DISABLED)  # Make the text widget read-only
 instruction_text.pack(pady=(10, 0))
 
 
-# Ohm's Law Tab
+
+# =========================================================================================
+# =========================================================================================
+# Ohm's Law Tab     =======================================================================
+# =========================================================================================
+# =========================================================================================
 ohms_tab = ttk.Frame(tab_control)
 tab_control.add(ohms_tab, text='Ohms')
 # Add Ohm's Law widgets here
@@ -353,8 +397,11 @@ ohms_live_calc_checkbox.pack(side=tk.RIGHT, padx=10, pady=5, anchor='s')
 
 
 
-
-# MOAR Power Tab
+# =========================================================================================
+# =========================================================================================
+# MOAR Power Tab        ===================================================================
+# =========================================================================================
+# =========================================================================================
 power_tab = ttk.Frame(tab_control)
 tab_control.add(power_tab, text='Moar Pwr')
 
@@ -395,7 +442,72 @@ reset_button = tk.Button(power_tab, text="Reset", command=reset_power_fields)
 reset_button.pack(side=tk.LEFT, padx=10, pady=5, anchor='s')
 
 
-# Settings Tab
+
+# =========================================================================================
+# =========================================================================================
+# # R-C-L Tab       =======================================================================
+# =========================================================================================
+# =========================================================================================
+rcl_tab = ttk.Frame(tab_control)
+tab_control.add(rcl_tab, text='R-C-L')
+
+# Input Fields with Labels
+tk.Label(rcl_tab, text="Resistor (R):").pack(side=tk.TOP, anchor='w', padx=10)
+rcl_r_entry = tk.Entry(rcl_tab)
+rcl_r_entry.pack(side=tk.TOP, anchor='w', padx=10)
+
+tk.Label(rcl_tab, text="Capacitor (C):").pack(side=tk.TOP, anchor='w', padx=10)
+rcl_c_entry = tk.Entry(rcl_tab)
+rcl_c_entry.pack(side=tk.TOP, anchor='w', padx=10)
+
+tk.Label(rcl_tab, text="Inductor (L):").pack(side=tk.TOP, anchor='w', padx=10)
+rcl_l_entry = tk.Entry(rcl_tab)
+rcl_l_entry.pack(side=tk.TOP, anchor='w', padx=10)
+
+# Radio Buttons for Series/Parallel
+rcl_series_parallel_var = tk.StringVar(value="series")
+series_radio = tk.Radiobutton(rcl_tab, text="Series", variable=rcl_series_parallel_var, value="series")
+series_radio.pack(side=tk.TOP, anchor='w', padx=10)
+parallel_radio = tk.Radiobutton(rcl_tab, text="Parallel", variable=rcl_series_parallel_var, value="parallel")
+parallel_radio.pack(side=tk.TOP, anchor='w', padx=10)
+
+# Calculate Button
+calc_button = tk.Button(rcl_tab, text="Calculate", command=calculate_rcl)
+calc_button.pack(side=tk.TOP, pady=10)
+
+# Results Label
+rcl_results_label = tk.Label(rcl_tab, text="")
+rcl_results_label.pack(side=tk.TOP, pady=10)
+
+# Conversion Section
+tk.Label(rcl_tab, text="Convert Value:").pack(side=tk.TOP, anchor='w', padx=10)
+unit_conversion_entry = tk.Entry(rcl_tab)
+unit_conversion_entry.pack(side=tk.TOP, anchor='w', padx=10)
+
+# Dropdown and Convert Button Side by Side
+unit_factors = {
+    "giga": 1e9, "mega": 1e6, "kilo": 1e3, "base": 1,
+    "milli": 1e-3, "micro": 1e-6, "nano": 1e-9, "pico": 1e-12
+}
+unit_prefix_var = tk.StringVar(value="base")
+unit_dropdown = ttk.Combobox(rcl_tab, textvariable=unit_prefix_var, values=unit_factors)
+unit_dropdown.pack(side=tk.LEFT, padx=5)
+
+convert_button = tk.Button(rcl_tab, text="Convert", command=convert_units)
+convert_button.pack(side=tk.LEFT, padx=5)
+
+# Conversion Output with Text Wrapping
+conversion_output = tk.Text(rcl_tab, height=4, wrap='word')
+conversion_output.pack(side=tk.TOP, padx=10, pady=10)
+conversion_output.config(state=tk.DISABLED)
+
+
+
+# =========================================================================================
+# =========================================================================================
+# Settings Tab      =======================================================================
+# =========================================================================================
+# =========================================================================================
 settings_tab = ttk.Frame(tab_control)
 tab_control.add(settings_tab, text='Settings')
 # Checkbox for always on top
