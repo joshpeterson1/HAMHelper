@@ -1,6 +1,6 @@
 # HamHelper
 
-HamHelper (FKA HamCalc) is a versatile tool designed for amateur radio enthusiasts. It provides a range of calculations and utilities to assist with various aspects of ham radio operations.
+HamHelper (FKA HamCalc) is a versatile tool designed for amateur radio enthusiasts. It provides a range of calculations and utilities to assist with various aspects of ham radio operations...
 
 Note that this application is very early stages, and functionality will be continue to be added. While I have preformed basic tests, there will likely be bugs. Please feel free to submit a PR fix or drop a descriptive report in Issues otherwise.
 
