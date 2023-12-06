@@ -58,42 +58,80 @@ def calculate_ohms_law_and_power():
         E = volts_entry.get()
         I = current_entry.get()
         R = resistance_entry.get()
+        P = watts_entry.get()
         power_calculated = False
 
-        if E and I and not R:
-            # Calculate R
+        # Reset background colors
+        volts_entry.config(bg='white')
+        current_entry.config(bg='white')
+        resistance_entry.config(bg='white')
+        watts_entry.config(bg='white')
+
+        # E and I provided
+        if E and I:
             R = float(E) / float(I)
+            P = float(E) * float(I)
             resistance_entry.delete(0, tk.END)
             resistance_entry.insert(0, str(R))
+            watts_entry.delete(0, tk.END)
+            watts_entry.insert(0, str(P))
             resistance_entry.config(bg='lightgreen')
-            # Calculate Power
-            power = float(E) * float(I)
-            power_calculated = True
-        elif E and R and not I:
-            # Calculate I
+            watts_entry.config(bg='lightgreen')
+
+        # E and R provided
+        elif E and R:
             I = float(E) / float(R)
+            P = (float(E) ** 2) / float(R)
             current_entry.delete(0, tk.END)
             current_entry.insert(0, str(I))
+            watts_entry.delete(0, tk.END)
+            watts_entry.insert(0, str(P))
             current_entry.config(bg='lightgreen')
-            # Calculate Power
-            power = (float(E) ** 2) / float(R)
-            power_calculated = True
-        elif I and R and not E:
-            # Calculate E
+            watts_entry.config(bg='lightgreen')
+
+        # I and R provided
+        elif I and R:
             E = float(I) * float(R)
+            P = (float(I) ** 2) * float(R)
             volts_entry.delete(0, tk.END)
             volts_entry.insert(0, str(E))
+            watts_entry.delete(0, tk.END)
+            watts_entry.insert(0, str(P))
             volts_entry.config(bg='lightgreen')
-            # Calculate Power
-            power = (float(I) ** 2) * float(R)
-            power_calculated = True
-        
-        if power_calculated:
-            power_label.config(text=f"Watts: {power:.2f}")
-            power_label.config(bg='lightgreen')
-        else:
-            power_label.config(text="Watts: --")
-            power_label.config(bg='white')
+            watts_entry.config(bg='lightgreen')
+
+        # E and P provided
+        elif E and P:
+            I = float(P) / float(E)
+            R = (float(E) ** 2) / float(P)
+            current_entry.delete(0, tk.END)
+            current_entry.insert(0, str(I))
+            resistance_entry.delete(0, tk.END)
+            resistance_entry.insert(0, str(R))
+            current_entry.config(bg='lightgreen')
+            resistance_entry.config(bg='lightgreen')
+
+        # I and P provided
+        elif I and P:
+            E = float(P) / float(I)
+            R = float(P) / (float(I) ** 2)
+            volts_entry.delete(0, tk.END)
+            volts_entry.insert(0, str(E))
+            resistance_entry.delete(0, tk.END)
+            resistance_entry.insert(0, str(R))
+            volts_entry.config(bg='lightgreen')
+            resistance_entry.config(bg='lightgreen')
+
+        # R and P provided
+        elif R and P:
+            E = (float(P) * float(R)) ** 0.5
+            I = (float(P) / float(R)) ** 0.5
+            volts_entry.delete(0, tk.END)
+            volts_entry.insert(0, str(E))
+            current_entry.delete(0, tk.END)
+            current_entry.insert(0, str(I))
+            volts_entry.config(bg='lightgreen')
+            current_entry.config(bg='lightgreen')
 
     except ValueError:
         # Invalid input, do nothing
@@ -103,9 +141,11 @@ def reset_ohms_law():
     volts_entry.delete(0, tk.END)
     current_entry.delete(0, tk.END)
     resistance_entry.delete(0, tk.END)
+    watts_entry.delete(0, tk.END)
     volts_entry.config(bg='white')
     current_entry.config(bg='white')
     resistance_entry.config(bg='white')
+    watts_entry.config(bg='white')
 
 # Function to toggle always on top
 def toggle_always_on_top():
@@ -188,9 +228,12 @@ volts_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
 current_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
 resistance_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
 
-# Power label
-power_label = tk.Label(ohms_tab, text="Watts: --")
-power_label.pack(side=tk.LEFT, padx=10)
+# Watts (P)
+watts_label = tk.Label(ohms_tab, text="P (Watts):")
+watts_label.pack(side=tk.TOP, anchor='w')
+watts_entry = tk.Entry(ohms_tab)
+watts_entry.pack(side=tk.TOP, anchor='w')
+watts_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
 
 # Reset button (centered)
 reset_button = tk.Button(ohms_tab, text="Reset", command=reset_ohms_law)
