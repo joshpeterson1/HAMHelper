@@ -9,6 +9,7 @@ Note that this application is very early stages, and functionality will be conti
 - **Frequency to Wavelength Conversion**: Easily convert between frequency and wavelength.
 - **Ohm's Law Calculator**: Calculate voltage, current, resistance, and power using Ohm's Law.
 - **Power Calculations**: Perform calculations related to peak voltage, PEP, RMS, and peak-to-peak voltage.
+- **R, C, L calculations**: Perform calculations for Capacitors, Inductors, and / or Restistors in series or parallel.
 - **Customizable Settings**: Adjust window size, opacity, and other preferences.
 - **Live Calculation**: Real-time updates of calculations as you input values.
 
