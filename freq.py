@@ -248,6 +248,8 @@ def toggle_always_on_top():
 def update_opacity(value):
     root.attributes('-alpha', float(value))
 
+def reset_window_size():
+    root.geometry(f"{int(screen_width * 0.105)}x{int(screen_height * 0.17)}")
 
 def on_close():
     save_config()
@@ -298,23 +300,23 @@ tab_control.add(ohms_tab, text='Ohms')
 
 # Voltage (E)
 volts_label = tk.Label(ohms_tab, text="E (Volts):")
-volts_label.pack(side=tk.TOP, anchor='w')
+volts_label.pack(side=tk.TOP, anchor='w', padx=10)
 volts_entry = tk.Entry(ohms_tab)
-volts_entry.pack(side=tk.TOP, anchor='w')
+volts_entry.pack(side=tk.TOP, anchor='w', padx=10)
 volts_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
 
 # Current (I)
 current_label = tk.Label(ohms_tab, text="I (Current):")
-current_label.pack(side=tk.TOP, anchor='w')
+current_label.pack(side=tk.TOP, anchor='w', padx=10)
 current_entry = tk.Entry(ohms_tab)
-current_entry.pack(side=tk.TOP, anchor='w')
+current_entry.pack(side=tk.TOP, anchor='w', padx=10)
 current_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
 
 # Resistance (R)
 resistance_label = tk.Label(ohms_tab, text="R (Resistance):")
-resistance_label.pack(side=tk.TOP, anchor='w')
+resistance_label.pack(side=tk.TOP, anchor='w', padx=10)
 resistance_entry = tk.Entry(ohms_tab)
-resistance_entry.pack(side=tk.TOP, anchor='w')
+resistance_entry.pack(side=tk.TOP, anchor='w', padx=10)
 resistance_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
 
 volts_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
@@ -323,64 +325,64 @@ resistance_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power
 
 # Watts (P)
 watts_label = tk.Label(ohms_tab, text="P (Watts):")
-watts_label.pack(side=tk.TOP, anchor='w')
+watts_label.pack(side=tk.TOP, anchor='w', padx=10)
 watts_entry = tk.Entry(ohms_tab)
-watts_entry.pack(side=tk.TOP, anchor='w')
+watts_entry.pack(side=tk.TOP, anchor='w', padx=10)
 watts_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
 
 # Reset button (centered)
 reset_button = tk.Button(ohms_tab, text="Reset", command=reset_ohms_law)
-reset_button.pack(side=tk.LEFT, padx=10)
+reset_button.pack(side=tk.LEFT, padx=10, pady=5, anchor='s')
 
 # Global variable to track the state of live calculation
 ohms_live_calc_enabled = tk.BooleanVar(value=True)
 
 # Checkbox for live calculation
 ohms_live_calc_checkbox = tk.Checkbutton(ohms_tab, text="Live Calc", var=ohms_live_calc_enabled)
-ohms_live_calc_checkbox.pack(side=tk.RIGHT, padx=10)
+ohms_live_calc_checkbox.pack(side=tk.RIGHT, padx=10, pady=5, anchor='s')
 
 
 
 
-# Power Tab
+# MOAR Power Tab
 power_tab = ttk.Frame(tab_control)
 tab_control.add(power_tab, text='Moar Pwr')
 
 # Create input fields for Peak, PEP, RMS, P to P, and Resistance
-tk.Label(power_tab, text="Peak Voltage:").pack()
+tk.Label(power_tab, text="Peak Voltage:").pack(side=tk.TOP, anchor='w', padx=10)
 peak_entry = tk.Entry(power_tab)
-peak_entry.pack()
+peak_entry.pack(side=tk.TOP, anchor='w', padx=10)
 peak_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
-tk.Label(power_tab, text="PEP:").pack()
+tk.Label(power_tab, text="PEP:").pack(side=tk.TOP, anchor='w', padx=10)
 pep_entry = tk.Entry(power_tab)
-pep_entry.pack()
+pep_entry.pack(side=tk.TOP, anchor='w', padx=10)
 pep_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
-tk.Label(power_tab, text="RMS:").pack()
+tk.Label(power_tab, text="RMS:").pack(side=tk.TOP, anchor='w', padx=10)
 rms_entry = tk.Entry(power_tab)
-rms_entry.pack()
+rms_entry.pack(side=tk.TOP, anchor='w', padx=10)
 rms_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
-tk.Label(power_tab, text="Peak-to-Peak Voltage:").pack()
+tk.Label(power_tab, text="Peak-to-Peak Voltage:").pack(side=tk.TOP, anchor='w', padx=10)
 p_to_p_entry = tk.Entry(power_tab)
-p_to_p_entry.pack()
+p_to_p_entry.pack(side=tk.TOP, anchor='w', padx=10)
 p_to_p_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
-tk.Label(power_tab, text="Resistance:").pack()
+tk.Label(power_tab, text="Resistance:").pack(side=tk.TOP, anchor='w', padx=10)
 resistance_entry = tk.Entry(power_tab)
 resistance_entry.insert(0, "50")  # Default value
-resistance_entry.pack()
+resistance_entry.pack(side=tk.TOP, anchor='w', padx=10)
 resistance_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters() if (peak_entry.get() or pep_entry.get() or rms_entry.get() or p_to_p_entry.get()) else None)
 
 # Live calculation checkbox
 moar_live_calc = tk.BooleanVar(value=True)
 moar_live_calc_checkbox = tk.Checkbutton(power_tab, text="Live Calc", var=moar_live_calc)
-moar_live_calc_checkbox.pack(side=tk.RIGHT, padx=10)
+moar_live_calc_checkbox.pack(side=tk.RIGHT, padx=10, pady=5, anchor='s')
 
 # Reset button
 reset_button = tk.Button(power_tab, text="Reset", command=reset_power_fields)
-reset_button.pack(side=tk.RIGHT, padx=10)
+reset_button.pack(side=tk.LEFT, padx=10, pady=5, anchor='s')
 
 
 # Settings Tab
@@ -394,6 +396,8 @@ always_on_top_check.pack()
 opacity_scale = tk.Scale(settings_tab, from_=0.1, to=1.0, resolution=0.1, orient=tk.HORIZONTAL, label="Opacity", command=update_opacity)
 opacity_scale.set(1.0)  # Set default opacity to 100%
 opacity_scale.pack()
+reset_size_button = tk.Button(settings_tab, text="Reset Window Size", command=reset_window_size)
+reset_size_button.pack()
 
 tab_control.pack(expand=1, fill="both")
 
