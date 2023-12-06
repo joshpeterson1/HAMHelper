@@ -16,7 +16,8 @@ def save_config():
         'opacity': opacity_scale.get(),
         'window_width': root.winfo_width(),
         'window_height': root.winfo_height(),
-        'live_calc': live_calc_enabled.get()
+        'ohms_live_calc': ohms_live_calc_enabled.get(),
+        'moar_live_calc': moar_live_calc.get()
     }
     with open(config_file, 'w') as configfile:
         config.write(configfile)
@@ -38,7 +39,8 @@ def load_config():
         opacity_scale.set(config.getfloat('Settings', 'opacity', fallback=1.0))
         window_width = config.getint('Settings', 'window_width', fallback=int(screen_width * 0.105))
         window_height = config.getint('Settings', 'window_height', fallback=int(screen_height * 0.17))
-        live_calc_enabled.set(config.getboolean('Settings', 'live_calc', fallback=True))
+        ohms_live_calc_enabled.set(config.getboolean('Settings', 'ohms_live_calc', fallback=True))
+        moar_live_calc.set(config.getboolean('MoarPwrSettings', 'moar_live_calc', fallback=True))
         root.geometry(f"{window_width}x{window_height}")
         update_opacity(opacity_scale.get())
         toggle_always_on_top()
@@ -56,7 +58,7 @@ def calculate_wavelength(event):
 
 # Function to calculate Ohm's Law
 def calculate_ohms_law_and_power(): 
-    if not live_calc_enabled.get():
+    if not ohms_live_calc_enabled.get():
         return
     try:
         E = volts_entry.get()
@@ -151,6 +153,71 @@ def reset_ohms_law():
     resistance_entry.config(bg='white')
     watts_entry.config(bg='white')
 
+def calculate_power_parameters():
+    if not moar_live_calc.get():
+        return
+
+    try:
+        Vp = float(peak_entry.get()) if peak_entry.get() else None
+        PEP = float(pep_entry.get()) if pep_entry.get() else None
+        Vrms = float(rms_entry.get()) if rms_entry.get() else None
+        Vpp = float(p_to_p_entry.get()) if p_to_p_entry.get() else None
+        R = float(resistance_entry.get()) if resistance_entry.get() else 50
+
+        # Reset background colors
+        peak_entry.config(bg='white')
+        pep_entry.config(bg='white')
+        rms_entry.config(bg='white')
+        p_to_p_entry.config(bg='white')
+
+        # Calculate based on the provided values
+        if Vp is not None:
+            Vrms = Vp * 0.707
+            Vpp = Vp * 2
+            PEP = (Vrms ** 2) / R
+        elif Vrms is not None:
+            Vp = Vrms / 0.707
+            Vpp = Vp * 2
+            PEP = (Vrms ** 2) / R
+        elif PEP is not None:
+            Vrms = (PEP * R) ** 0.5
+            Vp = Vrms / 0.707
+            Vpp = Vp * 2
+        elif Vpp is not None:
+            Vp = Vpp / 2
+            Vrms = Vp * 0.707
+            PEP = (Vrms ** 2) / R
+
+        # Update the fields
+        peak_entry.delete(0, tk.END)
+        peak_entry.insert(0, str(Vp))
+        pep_entry.delete(0, tk.END)
+        pep_entry.insert(0, str(PEP))
+        rms_entry.delete(0, tk.END)
+        rms_entry.insert(0, str(Vrms))
+        p_to_p_entry.delete(0, tk.END)
+        p_to_p_entry.insert(0, str(Vpp))
+
+    except ValueError:
+        # Handle invalid input
+        pass
+
+
+def reset_power_fields():
+    peak_entry.delete(0, tk.END)
+    pep_entry.delete(0, tk.END)
+    rms_entry.delete(0, tk.END)
+    p_to_p_entry.delete(0, tk.END)
+    resistance_entry.delete(0, tk.END)
+    resistance_entry.insert(0, "50")  # Reset to default value
+    peak_entry.config(bg='white')
+    pep_entry.config(bg='white')
+    rms_entry.config(bg='white')
+    p_to_p_entry.config(bg='white')
+    resistance_entry.config(bg='white')
+
+
+
 # Function to toggle always on top
 def toggle_always_on_top():
     root.attributes('-topmost', always_on_top_var.get())
@@ -244,11 +311,11 @@ reset_button = tk.Button(ohms_tab, text="Reset", command=reset_ohms_law)
 reset_button.pack(side=tk.LEFT, padx=10)
 
 # Global variable to track the state of live calculation
-live_calc_enabled = tk.BooleanVar(value=True)
+ohms_live_calc_enabled = tk.BooleanVar(value=True)
 
 # Checkbox for live calculation
-live_calc_checkbox = tk.Checkbutton(ohms_tab, text="Live Calc", var=live_calc_enabled)
-live_calc_checkbox.pack(side=tk.RIGHT, padx=10)
+ohms_live_calc_checkbox = tk.Checkbutton(ohms_tab, text="Live Calc", var=ohms_live_calc_enabled)
+ohms_live_calc_checkbox.pack(side=tk.RIGHT, padx=10)
 
 
 
@@ -256,7 +323,38 @@ live_calc_checkbox.pack(side=tk.RIGHT, padx=10)
 # Power Tab
 power_tab = ttk.Frame(tab_control)
 tab_control.add(power_tab, text='Moar Pwr')
-# Add Power calculation widgets here
+
+# Create input fields for Peak, PEP, RMS, P to P, and Resistance
+peak_entry = tk.Entry(power_tab)
+peak_entry.pack(pady=5)
+peak_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+
+pep_entry = tk.Entry(power_tab)
+pep_entry.pack(pady=5)
+pep_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+
+rms_entry = tk.Entry(power_tab)
+rms_entry.pack(pady=5)
+rms_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+
+p_to_p_entry = tk.Entry(power_tab)
+p_to_p_entry.pack(pady=5)
+p_to_p_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+
+resistance_entry = tk.Entry(power_tab)
+resistance_entry.insert(0, "50")  # Default value
+resistance_entry.pack(pady=5)
+resistance_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+
+# Live calculation checkbox
+moar_live_calc = tk.BooleanVar(value=True)
+moar_live_calc_checkbox = tk.Checkbutton(power_tab, text="Live Calc", var=moar_live_calc)
+moar_live_calc_checkbox.pack(side=tk.RIGHT, padx=10)
+
+# Reset button
+reset_button = tk.Button(power_tab, text="Reset", command=reset_power_fields)
+reset_button.pack(side=tk.RIGHT, padx=10)
+
 
 # Settings Tab
 settings_tab = ttk.Frame(tab_control)
