@@ -59,6 +59,11 @@ Please be sure to specify any changes / added functionality and the intent behin
 
 If you encounter any issues or have suggestions for improvements, please open an issue on the GitHub repository.
 
+## Scan Results
+[exe-zip (download)](https://www.virustotal.com/gui/url/b426df57c26198fce7c8d594f3f0c1b07a2819efe13e9481892dfec43998cd99/detection)
+[exe (direct upload)](https://www.virustotal.com/gui/file/909e6dd01177e1099cbba0d320bba1c79a39f47bc1589b91870bc37480d8a9f8/behavior)
+
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
