@@ -166,6 +166,9 @@ def calculate_power_parameters():
     global calculation_id  # Declare calculation_id as global
     if not moar_live_calc.get():
         return
+    # Check if at least one of the other fields has a value
+    if not (peak_entry.get() or pep_entry.get() or rms_entry.get() or p_to_p_entry.get()):
+        return  # Do not schedule calculation if all other fields are empty
     # Cancel previous scheduled calculation if any
     if calculation_id is not None:
         root.after_cancel(calculation_id)
@@ -368,7 +371,7 @@ tk.Label(power_tab, text="Resistance:").pack()
 resistance_entry = tk.Entry(power_tab)
 resistance_entry.insert(0, "50")  # Default value
 resistance_entry.pack()
-resistance_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+resistance_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters() if (peak_entry.get() or pep_entry.get() or rms_entry.get() or p_to_p_entry.get()) else None)
 
 # Live calculation checkbox
 moar_live_calc = tk.BooleanVar(value=True)
