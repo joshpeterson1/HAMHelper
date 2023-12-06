@@ -3,6 +3,9 @@ from tkinter import ttk
 import configparser
 import os
 
+calculation_id = None  # Global initialization
+moar_live_calc_delay = None
+
 # Configuration file path
 config_file = 'config.txt'
 
@@ -17,19 +20,24 @@ def save_config():
         'window_width': root.winfo_width(),
         'window_height': root.winfo_height(),
         'ohms_live_calc': ohms_live_calc_enabled.get(),
-        'moar_live_calc': moar_live_calc.get()
+        'moar_live_calc': moar_live_calc.get(),
+        'moar_live_calc_delay': moar_live_calc_delay
     }
     with open(config_file, 'w') as configfile:
         config.write(configfile)
 
 def load_config():
+    global moar_live_calc_delay
     # Check if the config file exists, if not, create it with default values
     if not os.path.exists(config_file):
         config['Settings'] = {
             'always_on_top': False,
             'opacity': 1.0,
             'window_width': int(screen_width * 0.105),
-            'window_height': int(screen_height * 0.17)
+            'window_height': int(screen_height * 0.17),
+            'ohms_live_calc': True,
+            'moar_live_calc': True,
+            'moar_live_calc_delay': 0.5
         }
         with open(config_file, 'w') as configfile:
             config.write(configfile)
@@ -40,7 +48,8 @@ def load_config():
         window_width = config.getint('Settings', 'window_width', fallback=int(screen_width * 0.105))
         window_height = config.getint('Settings', 'window_height', fallback=int(screen_height * 0.17))
         ohms_live_calc_enabled.set(config.getboolean('Settings', 'ohms_live_calc', fallback=True))
-        moar_live_calc.set(config.getboolean('MoarPwrSettings', 'moar_live_calc', fallback=True))
+        moar_live_calc.set(config.getboolean('Settings', 'moar_live_calc', fallback=True))
+        moar_live_calc_delay = config.getfloat('Settings', 'moar_live_calc_delay', fallback=0.5)
         root.geometry(f"{window_width}x{window_height}")
         update_opacity(opacity_scale.get())
         toggle_always_on_top()
@@ -154,6 +163,16 @@ def reset_ohms_law():
     watts_entry.config(bg='white')
 
 def calculate_power_parameters():
+    global calculation_id  # Declare calculation_id as global
+    if not moar_live_calc.get():
+        return
+    # Cancel previous scheduled calculation if any
+    if calculation_id is not None:
+        root.after_cancel(calculation_id)
+    # Schedule a new calculation
+    calculation_id = root.after(int(moar_live_calc_delay * 1000), perform_power_calculation)
+
+def perform_power_calculation():
     if not moar_live_calc.get():
         return
 
@@ -325,25 +344,30 @@ power_tab = ttk.Frame(tab_control)
 tab_control.add(power_tab, text='Moar Pwr')
 
 # Create input fields for Peak, PEP, RMS, P to P, and Resistance
+tk.Label(power_tab, text="Peak Voltage:").pack()
 peak_entry = tk.Entry(power_tab)
-peak_entry.pack(pady=5)
+peak_entry.pack()
 peak_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
+tk.Label(power_tab, text="PEP:").pack()
 pep_entry = tk.Entry(power_tab)
-pep_entry.pack(pady=5)
+pep_entry.pack()
 pep_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
+tk.Label(power_tab, text="RMS:").pack()
 rms_entry = tk.Entry(power_tab)
-rms_entry.pack(pady=5)
+rms_entry.pack()
 rms_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
+tk.Label(power_tab, text="Peak-to-Peak Voltage:").pack()
 p_to_p_entry = tk.Entry(power_tab)
-p_to_p_entry.pack(pady=5)
+p_to_p_entry.pack()
 p_to_p_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
+tk.Label(power_tab, text="Resistance:").pack()
 resistance_entry = tk.Entry(power_tab)
 resistance_entry.insert(0, "50")  # Default value
-resistance_entry.pack(pady=5)
+resistance_entry.pack()
 resistance_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
 # Live calculation checkbox
