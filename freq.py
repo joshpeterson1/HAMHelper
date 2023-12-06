@@ -3,6 +3,7 @@ from tkinter import ttk
 import configparser
 import sys
 import os
+import requests
 
 if getattr(sys, 'frozen', False):
     # We are running in a bundle (executable)
@@ -43,8 +44,8 @@ def load_config():
         config['Settings'] = {
             'always_on_top': False,
             'opacity': 1.0,
-            'window_width': int(screen_width * 0.105),
-            'window_height': int(screen_height * 0.17),
+            'window_width': int(screen_width * 0.13),
+            'window_height': int(screen_height * 0.35),
             'ohms_live_calc': True,
             'moar_live_calc': True,
             'moar_live_calc_delay': 0.5
@@ -55,8 +56,8 @@ def load_config():
         config.read(config_file)
         always_on_top_var.set(config.getboolean('Settings', 'always_on_top', fallback=False))
         opacity_scale.set(config.getfloat('Settings', 'opacity', fallback=1.0))
-        window_width = config.getint('Settings', 'window_width', fallback=int(screen_width * 0.105))
-        window_height = config.getint('Settings', 'window_height', fallback=int(screen_height * 0.17))
+        window_width = config.getint('Settings', 'window_width', fallback=int(screen_width * 0.13))
+        window_height = config.getint('Settings', 'window_height', fallback=int(screen_height * 0.35))
         ohms_live_calc_enabled.set(config.getboolean('Settings', 'ohms_live_calc', fallback=True))
         moar_live_calc.set(config.getboolean('Settings', 'moar_live_calc', fallback=True))
         moar_live_calc_delay = config.getfloat('Settings', 'moar_live_calc_delay', fallback=0.5)
@@ -248,7 +249,77 @@ def reset_power_fields():
     pwr_p_to_p_entry.config(bg='white')
     pwr_resistance_entry.config(bg='white')
 
+def calculate_rcl():
+    # Process the entries for R, C, and L
+    r_values = [float(val.strip()) for val in rcl_r_entry.get().replace(',', '').split(';') if val]
+    c_values = [float(val.strip()) for val in rcl_c_entry.get().replace(',', '').split(';') if val]
+    l_values = [float(val.strip()) for val in rcl_l_entry.get().replace(',', '').split(';') if val]
 
+    # Perform calculations based on series/parallel selection
+    if rcl_series_parallel_var.get() == "series":
+        # Series calculations
+        r_total = sum(r_values)
+        c_total = 1 / sum([1 / c for c in c_values if c != 0]) if c_values else 0
+        l_total = sum(l_values)
+    else:
+        # Parallel calculations
+        r_total = 1 / sum([1 / r for r in r_values if r != 0]) if r_values else 0
+        c_total = sum(c_values)
+        l_total = 1 / sum([1 / l for l in l_values if l != 0]) if l_values else 0
+
+    # Update the display with calculated values
+    conversion_output_label.config(text=f"R: {r_total}, C: {c_total}, L: {l_total}")
+
+# Function to handle unit conversion
+def convert_units():
+    # Conversion logic
+    unit_factors = {
+        "giga": 1e9, "mega": 1e6, "kilo": 1e3, "base": 1,
+        "milli": 1e-3, "micro": 1e-6, "nano": 1e-9, "pico": 1e-12
+    }
+    base_value = float(unit_conversion_entry.get()) * unit_factors[unit_prefix_var.get()]
+    converted_values = {k: base_value / v for k, v in unit_factors.items()}
+    conversion_text = ", ".join([f"{k}: {v:.3g}" for k, v in converted_values.items()])
+    rcl_results_label.config(text=f"Converted values: {conversion_text}")
+
+# Function to get latitude and longitude from Nominatim API
+def get_lat_long_from_address(address):
+    url = f"https://nominatim.openstreetmap.org/search?format=json&q={address}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if data:
+            return data[0]['lat'], data[0]['lon']
+    return None, None
+
+def calculate_maidenhead(lat, lon):
+    # Ensure lat and lon are treated as numbers
+    lat = float(lat)
+    lon = float(lon)
+
+    # Convert latitude and longitude to Maidenhead grid locator
+    A = ord('A')
+    adj_lat = lat + 90
+    adj_lon = lon + 180
+    grid_4 = chr(int(adj_lon / 20) + A) + chr(int(adj_lat / 10) + A)
+    grid_4 += str(int((adj_lon % 20) / 2)) + str(int(adj_lat % 10))
+
+    # For 6-digit precision
+    grid_6 = grid_4
+    grid_6 += chr(int((adj_lon % 2) * 12) + A) + chr(int((adj_lat % 1) * 24) + A)
+
+    return grid_4, grid_6
+
+
+# Function to handle position calculation
+def calculate_position():
+    address = pos_input.get()
+    lat, lon = get_lat_long_from_address(address)
+    if lat and lon:
+        grid_4, grid_6 = calculate_maidenhead(lat, lon)
+        pos_result_label.config(text=f"Latitude: {lat}, Longitude: {lon}\n4-Digit Grid: {grid_4}, 6-Digit Grid: {grid_6}")
+    else:
+        pos_result_label.config(text="Invalid input or location not found.")
 
 # Function to toggle always on top
 def toggle_always_on_top():
@@ -259,7 +330,7 @@ def update_opacity(value):
     root.attributes('-alpha', float(value))
 
 def reset_window_size():
-    root.geometry(f"{int(screen_width * 0.105)}x{int(screen_height * 0.30)}")
+    root.geometry(f"{int(screen_width * 0.13)}x{int(screen_height * 0.35)}")
 
 def on_close():
     save_config()
@@ -272,8 +343,8 @@ root.iconbitmap(icon_path)
 # Set the window size
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
-window_width = int(screen_width * 0.105)
-window_height = int(screen_height * 0.30)
+window_width = int(screen_width * 0.13)
+window_height = int(screen_height * 0.35)
 root.geometry(f"{window_width}x{window_height}")
 style = ttk.Style(root)
 style.configure('bottomtab.TNotebook', tabposition='sw')
@@ -281,7 +352,13 @@ style.configure('bottomtab.TNotebook', tabposition='sw')
 # Create the tab control
 tab_control = ttk.Notebook(root, style='bottomtab.TNotebook')
 
-# Frequency Tab
+
+
+# =========================================================================================
+# =========================================================================================
+# Frequency Tab     =======================================================================
+# =========================================================================================
+# =========================================================================================
 freq_tab = ttk.Frame(tab_control)
 tab_control.add(freq_tab, text='Freq')
 freq_entry = tk.Entry(freq_tab)
@@ -303,7 +380,12 @@ instruction_text.config(state=tk.DISABLED)  # Make the text widget read-only
 instruction_text.pack(pady=(10, 0))
 
 
-# Ohm's Law Tab
+
+# =========================================================================================
+# =========================================================================================
+# Ohm's Law Tab     =======================================================================
+# =========================================================================================
+# =========================================================================================
 ohms_tab = ttk.Frame(tab_control)
 tab_control.add(ohms_tab, text='Ohms')
 # Add Ohm's Law widgets here
@@ -353,8 +435,11 @@ ohms_live_calc_checkbox.pack(side=tk.RIGHT, padx=10, pady=5, anchor='s')
 
 
 
-
-# MOAR Power Tab
+# =========================================================================================
+# =========================================================================================
+# MOAR Power Tab        ===================================================================
+# =========================================================================================
+# =========================================================================================
 power_tab = ttk.Frame(tab_control)
 tab_control.add(power_tab, text='Moar Pwr')
 
@@ -395,7 +480,100 @@ reset_button = tk.Button(power_tab, text="Reset", command=reset_power_fields)
 reset_button.pack(side=tk.LEFT, padx=10, pady=5, anchor='s')
 
 
-# Settings Tab
+
+# =========================================================================================
+# =========================================================================================
+# # R-C-L Tab       =======================================================================
+# =========================================================================================
+# =========================================================================================
+# R-C-L Tab
+rcl_tab = ttk.Frame(tab_control)
+tab_control.add(rcl_tab, text='R-C-L')
+
+# Input Fields with Labels
+tk.Label(rcl_tab, text="Resistor (R):").pack(side=tk.TOP, anchor='w', padx=10)
+rcl_r_entry = tk.Entry(rcl_tab)
+rcl_r_entry.pack(side=tk.TOP, anchor='w', padx=10)
+
+tk.Label(rcl_tab, text="Capacitor (C):").pack(side=tk.TOP, anchor='w', padx=10)
+rcl_c_entry = tk.Entry(rcl_tab)
+rcl_c_entry.pack(side=tk.TOP, anchor='w', padx=10)
+
+tk.Label(rcl_tab, text="Inductor (L):").pack(side=tk.TOP, anchor='w', padx=10)
+rcl_l_entry = tk.Entry(rcl_tab)
+rcl_l_entry.pack(side=tk.TOP, anchor='w', padx=10)
+
+# Radio Buttons for Series/Parallel
+rcl_series_parallel_var = tk.StringVar(value="series")
+series_radio = tk.Radiobutton(rcl_tab, text="Series", variable=rcl_series_parallel_var, value="series")
+series_radio.pack(side=tk.TOP, anchor='w', padx=10)
+parallel_radio = tk.Radiobutton(rcl_tab, text="Parallel", variable=rcl_series_parallel_var, value="parallel")
+parallel_radio.pack(side=tk.TOP, anchor='w', padx=10)
+
+# Calculate Button
+calc_button = tk.Button(rcl_tab, text="Calculate", command=calculate_rcl)
+calc_button.pack(side=tk.TOP, pady=10, anchor='w', padx='10')
+
+# Results Label for R-C-L Calculations
+rcl_results_label = tk.Label(rcl_tab, text="", wraplength=window_width - 40)  # Adjust wraplength as needed
+rcl_results_label.pack(side=tk.TOP)
+
+# Conversion Section
+conversion_frame = tk.Frame(rcl_tab)
+conversion_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=10)
+
+# Conversion Value Label and Entry
+tk.Label(conversion_frame, text="Convert Value:").pack(side=tk.TOP, anchor='w')
+unit_conversion_entry = tk.Entry(conversion_frame)
+unit_conversion_entry.pack(side=tk.TOP, anchor='w', pady=(5, 0))  # Added vertical padding
+
+# Frame for Dropdown and Button
+dropdown_button_frame = tk.Frame(conversion_frame)
+dropdown_button_frame.pack(side=tk.TOP, anchor='w', pady=(5, 0))  # Added vertical padding
+
+# Dropdown for Unit Prefixes
+unit_factors = ["giga", "mega", "kilo", "base", "milli", "micro", "nano", "pico"]
+unit_prefix_var = tk.StringVar(value="base")
+unit_dropdown = ttk.Combobox(dropdown_button_frame, textvariable=unit_prefix_var, values=unit_factors, width=10)
+unit_dropdown.pack(side=tk.LEFT, anchor='w')
+
+# Convert Button
+convert_button = tk.Button(dropdown_button_frame, text="Convert", command=convert_units)
+convert_button.pack(side=tk.LEFT, anchor='w', padx=(5, 0))  # Added horizontal padding between dropdown and button
+
+# Conversion Output Label
+conversion_output_label = tk.Label(rcl_tab, text="", wraplength=window_width - 20)
+conversion_output_label.pack(side=tk.TOP, padx=10, pady=10)
+
+
+
+# =========================================================================================
+# =========================================================================================
+# Positioning Tab
+# =========================================================================================
+# =========================================================================================
+pos_tab = ttk.Frame(tab_control)
+tab_control.add(pos_tab, text='Positioning')
+
+# Input field for address/zip/lat,long
+tk.Label(pos_tab, text="Location (City, State; Zip; Lat, Long)").pack(side=tk.TOP, anchor='w', padx=10)
+pos_input = tk.Entry(pos_tab)
+pos_input.pack(side=tk.TOP, anchor='w', padx=10, pady=5)
+pos_input.bind("<Return>", lambda event: calculate_position())
+
+# Button to calculate position
+pos_button = tk.Button(pos_tab, text="Calculate", command=calculate_position)
+pos_button.pack(side=tk.TOP, anchor='w', padx=10, pady=5)
+
+# Label to display results
+pos_result_label = tk.Label(pos_tab, text="")
+pos_result_label.pack(side=tk.TOP, anchor='w', padx=10, pady=5)
+
+# =========================================================================================
+# =========================================================================================
+# Settings Tab      =======================================================================
+# =========================================================================================
+# =========================================================================================
 settings_tab = ttk.Frame(tab_control)
 tab_control.add(settings_tab, text='Settings')
 # Checkbox for always on top
