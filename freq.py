@@ -177,7 +177,7 @@ def calculate_power_parameters():
     if not moar_live_calc.get():
         return
     # Check if at least one of the other fields has a value
-    if not (peak_entry.get() or pep_entry.get() or rms_entry.get() or p_to_p_entry.get()):
+    if not (pwr_peak_entry.get() or pwr_pep_entry.get() or pwr_rms_entry.get() or pwr_p_to_p_entry.get()):
         return  # Do not schedule calculation if all other fields are empty
     # Cancel previous scheduled calculation if any
     if calculation_id is not None:
@@ -190,45 +190,45 @@ def perform_power_calculation():
         return
 
     try:
-        Vp = float(peak_entry.get()) if peak_entry.get() else None
-        PEP = float(pep_entry.get()) if pep_entry.get() else None
-        Vrms = float(rms_entry.get()) if rms_entry.get() else None
-        Vpp = float(p_to_p_entry.get()) if p_to_p_entry.get() else None
-        R = float(resistance_entry.get()) if resistance_entry.get() else 50
+        pwr_Vp = float(pwr_peak_entry.get()) if pwr_peak_entry.get() else None
+        pwr_PEP = float(pwr_pep_entry.get()) if pwr_pep_entry.get() else None
+        pwr_Vrms = float(pwr_rms_entry.get()) if pwr_rms_entry.get() else None
+        pwr_Vpp = float(pwr_p_to_p_entry.get()) if pwr_p_to_p_entry.get() else None
+        pwr_R = float(pwr_resistance_entry.get()) if pwr_resistance_entry.get() else 50
 
         # Reset background colors
-        peak_entry.config(bg='white')
-        pep_entry.config(bg='white')
-        rms_entry.config(bg='white')
-        p_to_p_entry.config(bg='white')
+        pwr_peak_entry.config(bg='white')
+        pwr_pep_entry.config(bg='white')
+        pwr_rms_entry.config(bg='white')
+        pwr_p_to_p_entry.config(bg='white')
 
         # Calculate based on the provided values
-        if Vp is not None:
-            Vrms = Vp * 0.707
-            Vpp = Vp * 2
-            PEP = (Vrms ** 2) / R
-        elif Vrms is not None:
-            Vp = Vrms / 0.707
-            Vpp = Vp * 2
-            PEP = (Vrms ** 2) / R
-        elif PEP is not None:
-            Vrms = (PEP * R) ** 0.5
-            Vp = Vrms / 0.707
-            Vpp = Vp * 2
-        elif Vpp is not None:
-            Vp = Vpp / 2
-            Vrms = Vp * 0.707
-            PEP = (Vrms ** 2) / R
+        if pwr_Vp is not None:
+            pwr_Vrms = pwr_Vp * 0.707
+            pwr_Vpp = pwr_Vp * 2
+            pwr_PEP = (pwr_Vrms ** 2) / pwr_R
+        elif pwr_Vrms is not None:
+            pwr_Vp = pwr_Vrms / 0.707
+            pwr_Vpp = pwr_Vp * 2
+            pwr_PEP = (pwr_Vrms ** 2) / pwr_R
+        elif pwr_PEP is not None:
+            pwr_Vrms = (pwr_PEP * pwr_R) ** 0.5
+            pwr_Vp = pwr_Vrms / 0.707
+            pwr_Vpp = pwr_Vp * 2
+        elif pwr_Vpp is not None:
+            pwr_Vp = pwr_Vpp / 2
+            pwr_Vrms = pwr_Vp * 0.707
+            pwr_PEP = (pwr_Vrms ** 2) / pwr_R
 
         # Update the fields
-        peak_entry.delete(0, tk.END)
-        peak_entry.insert(0, str(Vp))
-        pep_entry.delete(0, tk.END)
-        pep_entry.insert(0, str(PEP))
-        rms_entry.delete(0, tk.END)
-        rms_entry.insert(0, str(Vrms))
-        p_to_p_entry.delete(0, tk.END)
-        p_to_p_entry.insert(0, str(Vpp))
+        pwr_peak_entry.delete(0, tk.END)
+        pwr_peak_entry.insert(0, str(pwr_Vp))
+        pwr_pep_entry.delete(0, tk.END)
+        pwr_pep_entry.insert(0, str(pwr_PEP))
+        pwr_rms_entry.delete(0, tk.END)
+        pwr_rms_entry.insert(0, str(pwr_Vrms))
+        pwr_p_to_p_entry.delete(0, tk.END)
+        pwr_p_to_p_entry.insert(0, str(pwr_Vpp))
 
     except ValueError:
         # Handle invalid input
@@ -236,17 +236,17 @@ def perform_power_calculation():
 
 
 def reset_power_fields():
-    peak_entry.delete(0, tk.END)
-    pep_entry.delete(0, tk.END)
-    rms_entry.delete(0, tk.END)
-    p_to_p_entry.delete(0, tk.END)
-    resistance_entry.delete(0, tk.END)
-    resistance_entry.insert(0, "50")  # Reset to default value
-    peak_entry.config(bg='white')
-    pep_entry.config(bg='white')
-    rms_entry.config(bg='white')
-    p_to_p_entry.config(bg='white')
-    resistance_entry.config(bg='white')
+    pwr_peak_entry.delete(0, tk.END)
+    pwr_pep_entry.delete(0, tk.END)
+    pwr_rms_entry.delete(0, tk.END)
+    pwr_p_to_p_entry.delete(0, tk.END)
+    pwr_resistance_entry.delete(0, tk.END)
+    pwr_resistance_entry.insert(0, "50")  # Reset to default value
+    pwr_peak_entry.config(bg='white')
+    pwr_pep_entry.config(bg='white')
+    pwr_rms_entry.config(bg='white')
+    pwr_p_to_p_entry.config(bg='white')
+    pwr_resistance_entry.config(bg='white')
 
 
 
@@ -259,7 +259,7 @@ def update_opacity(value):
     root.attributes('-alpha', float(value))
 
 def reset_window_size():
-    root.geometry(f"{int(screen_width * 0.105)}x{int(screen_height * 0.17)}")
+    root.geometry(f"{int(screen_width * 0.105)}x{int(screen_height * 0.30)}")
 
 def on_close():
     save_config()
@@ -273,7 +273,7 @@ root.iconbitmap(icon_path)
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 window_width = int(screen_width * 0.105)
-window_height = int(screen_height * 0.17)
+window_height = int(screen_height * 0.30)
 root.geometry(f"{window_width}x{window_height}")
 style = ttk.Style(root)
 style.configure('bottomtab.TNotebook', tabposition='sw')
@@ -360,30 +360,30 @@ tab_control.add(power_tab, text='Moar Pwr')
 
 # Create input fields for Peak, PEP, RMS, P to P, and Resistance
 tk.Label(power_tab, text="Peak Voltage:").pack(side=tk.TOP, anchor='w', padx=10)
-peak_entry = tk.Entry(power_tab)
-peak_entry.pack(side=tk.TOP, anchor='w', padx=10)
-peak_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+pwr_peak_entry = tk.Entry(power_tab)
+pwr_peak_entry.pack(side=tk.TOP, anchor='w', padx=10)
+pwr_peak_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
 tk.Label(power_tab, text="PEP:").pack(side=tk.TOP, anchor='w', padx=10)
-pep_entry = tk.Entry(power_tab)
-pep_entry.pack(side=tk.TOP, anchor='w', padx=10)
-pep_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+pwr_pep_entry = tk.Entry(power_tab)
+pwr_pep_entry.pack(side=tk.TOP, anchor='w', padx=10)
+pwr_pep_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
 tk.Label(power_tab, text="RMS:").pack(side=tk.TOP, anchor='w', padx=10)
-rms_entry = tk.Entry(power_tab)
-rms_entry.pack(side=tk.TOP, anchor='w', padx=10)
-rms_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+pwr_rms_entry = tk.Entry(power_tab)
+pwr_rms_entry.pack(side=tk.TOP, anchor='w', padx=10)
+pwr_rms_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
 tk.Label(power_tab, text="Peak-to-Peak Voltage:").pack(side=tk.TOP, anchor='w', padx=10)
-p_to_p_entry = tk.Entry(power_tab)
-p_to_p_entry.pack(side=tk.TOP, anchor='w', padx=10)
-p_to_p_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
+pwr_p_to_p_entry = tk.Entry(power_tab)
+pwr_p_to_p_entry.pack(side=tk.TOP, anchor='w', padx=10)
+pwr_p_to_p_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters())
 
 tk.Label(power_tab, text="Resistance:").pack(side=tk.TOP, anchor='w', padx=10)
-resistance_entry = tk.Entry(power_tab)
-resistance_entry.insert(0, "50")  # Default value
-resistance_entry.pack(side=tk.TOP, anchor='w', padx=10)
-resistance_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters() if (peak_entry.get() or pep_entry.get() or rms_entry.get() or p_to_p_entry.get()) else None)
+pwr_resistance_entry = tk.Entry(power_tab)
+pwr_resistance_entry.insert(0, "50")  # Default value
+pwr_resistance_entry.pack(side=tk.TOP, anchor='w', padx=10)
+pwr_resistance_entry.bind("<KeyRelease>", lambda event: calculate_power_parameters() if (pwr_peak_entry.get() or pwr_pep_entry.get() or pwr_rms_entry.get() or pwr_p_to_p_entry.get()) else None)
 
 # Live calculation checkbox
 moar_live_calc = tk.BooleanVar(value=True)
