@@ -35,13 +35,13 @@ ohms_live_calc = True
 moar_live_calc = True
 moar_live_calc_delay = 1.0
 ```
-- always_on_top: (True / False) Always on top setting for application. Available in settings and will be remembered upon application close.
-- opacity: opacity value for application. Available in settings and will be remembered upon application close.
-- window_width: Width of window. Will be respected at launch at saved when closing the program.
-- window_height: Height of window. Will be respected at launch at saved when closing the program.
-- ohms_live_calc: (True / False) Whether or not calculations on the Ohms tab are preformed automatically. Available via checkbox on Ohms tab, saved on exit.
-- moar_live_calc: (True / False) Whether or not calculations on the Moar Pwr tab are preformed automatically. Available via checkbox on Moar Pwr tab, saved on exit.
-- moar_live_calc_delay: Set the delay of auto calculations for Moar Pwr calcs. Since only 1 value is needed, if this is too low, you may not be able to finish inputting your value. 
+- `always_on_top:` (True / False) Always on top setting for application. Available in settings and will be remembered upon application close.
+- `opacity:` opacity value for application. Available in settings and will be remembered upon application close.
+- `window_width:` Width of window. Will be respected at launch at saved when closing the program.
+- `window_height:` Height of window. Will be respected at launch at saved when closing the program.
+- `ohms_live_calc:` (True / False) Whether or not calculations on the Ohms tab are preformed automatically. Available via checkbox on Ohms tab, saved on exit.
+- `moar_live_calc:` (True / False) Whether or not calculations on the Moar Pwr tab are preformed automatically. Available via checkbox on Moar Pwr tab, saved on exit.
+- `moar_live_calc_delay:` Set the delay of auto calculations for Moar Pwr calcs. Since only 1 value is needed, if this is too low, you may not be able to finish inputting your value. 
 
 ## Contributing
 
