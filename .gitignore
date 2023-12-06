@@ -1,2 +1,5 @@
+/build/
+/dist/
+freq.spec
 trest.py
 config.txt

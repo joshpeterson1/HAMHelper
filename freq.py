@@ -1,7 +1,17 @@
 import tkinter as tk
 from tkinter import ttk
 import configparser
+import sys
 import os
+
+if getattr(sys, 'frozen', False):
+    # We are running in a bundle (executable)
+    bundle_dir = sys._MEIPASS
+else:
+    # We are running in a normal Python environment
+    bundle_dir = os.path.dirname(os.path.abspath(__file__))
+
+icon_path = os.path.join(bundle_dir, 'freq.ico')
 
 calculation_id = None  # Global initialization
 moar_live_calc_delay = None
@@ -15,13 +25,13 @@ config.read(config_file)
 
 def save_config():
     config['Settings'] = {
-        'always_on_top': always_on_top_var.get(),
-        'opacity': opacity_scale.get(),
-        'window_width': root.winfo_width(),
-        'window_height': root.winfo_height(),
-        'ohms_live_calc': ohms_live_calc_enabled.get(),
-        'moar_live_calc': moar_live_calc.get(),
-        'moar_live_calc_delay': moar_live_calc_delay
+        'always_on_top': str(always_on_top_var.get()),
+        'opacity': str(opacity_scale.get()),
+        'window_width': str(root.winfo_width()),
+        'window_height': str(root.winfo_height()),
+        'ohms_live_calc': str(ohms_live_calc_enabled.get()),
+        'moar_live_calc': str(moar_live_calc.get()),
+        'moar_live_calc_delay': str(moar_live_calc_delay)
     }
     with open(config_file, 'w') as configfile:
         config.write(configfile)
@@ -257,7 +267,7 @@ def on_close():
 
 root = tk.Tk()
 root.title("Ham Companion")
-root.iconbitmap('freq.ico')  # Set the window icon
+root.iconbitmap(icon_path)
 
 # Set the window size
 screen_width = root.winfo_screenwidth()
