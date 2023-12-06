@@ -2,6 +2,8 @@
 
 HamHelper is a versatile tool designed for amateur radio enthusiasts. It provides a range of calculations and utilities to assist with various aspects of ham radio operations.
 
+Note that this application is very early stages, and functionality will be continue to be added. While I have preformed basic tests, there will likely be bugs. Please feel free to submit a PR fix or drop a descriptive report in Issues otherwise.
+
 ## Features
 
 - **Frequency to Wavelength Conversion**: Easily convert between frequency and wavelength.
@@ -27,6 +29,8 @@ Contributions to HamHelper are welcome! If you have coding skills and wish to co
 3. Make your changes and commit them (`git commit -am 'Add some feature'`).
 4. Push to the branch (`git push origin feature-branch`).
 5. Create a new Pull Request.
+
+Please be sure to specify any changes / added functionality and the intent behind it as it will help with merging.
 
 ## Feedback and Support
 
