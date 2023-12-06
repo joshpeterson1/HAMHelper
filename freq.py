@@ -13,7 +13,9 @@ config.read(config_file)
 def save_config():
     config['Settings'] = {
         'always_on_top': always_on_top_var.get(),
-        'opacity': opacity_scale.get()
+        'opacity': opacity_scale.get(),
+        'window_width': root.winfo_width(),
+        'window_height': root.winfo_height()
     }
     with open(config_file, 'w') as configfile:
         config.write(configfile)
@@ -23,7 +25,9 @@ def load_config():
     if not os.path.exists(config_file):
         config['Settings'] = {
             'always_on_top': False,
-            'opacity': 1.0
+            'opacity': 1.0,
+            'window_width': int(screen_width * 0.105),
+            'window_height': int(screen_height * 0.17)
         }
         with open(config_file, 'w') as configfile:
             config.write(configfile)
@@ -31,6 +35,9 @@ def load_config():
         config.read(config_file)
         always_on_top_var.set(config.getboolean('Settings', 'always_on_top', fallback=False))
         opacity_scale.set(config.getfloat('Settings', 'opacity', fallback=1.0))
+        window_width = config.getint('Settings', 'window_width', fallback=int(screen_width * 0.105))
+        window_height = config.getint('Settings', 'window_height', fallback=int(screen_height * 0.17))
+        root.geometry(f"{window_width}x{window_height}")
         update_opacity(opacity_scale.get())
         toggle_always_on_top()
 
@@ -44,6 +51,61 @@ def calculate_wavelength(event):
         freq_output_label.config(text="Invalid input")
     except ZeroDivisionError:
         freq_output_label.config(text="Infinity")
+
+# Function to calculate Ohm's Law
+def calculate_ohms_law_and_power(): 
+    try:
+        E = volts_entry.get()
+        I = current_entry.get()
+        R = resistance_entry.get()
+        power_calculated = False
+
+        if E and I and not R:
+            # Calculate R
+            R = float(E) / float(I)
+            resistance_entry.delete(0, tk.END)
+            resistance_entry.insert(0, str(R))
+            resistance_entry.config(bg='lightgreen')
+            # Calculate Power
+            power = float(E) * float(I)
+            power_calculated = True
+        elif E and R and not I:
+            # Calculate I
+            I = float(E) / float(R)
+            current_entry.delete(0, tk.END)
+            current_entry.insert(0, str(I))
+            current_entry.config(bg='lightgreen')
+            # Calculate Power
+            power = (float(E) ** 2) / float(R)
+            power_calculated = True
+        elif I and R and not E:
+            # Calculate E
+            E = float(I) * float(R)
+            volts_entry.delete(0, tk.END)
+            volts_entry.insert(0, str(E))
+            volts_entry.config(bg='lightgreen')
+            # Calculate Power
+            power = (float(I) ** 2) * float(R)
+            power_calculated = True
+        
+        if power_calculated:
+            power_label.config(text=f"Watts: {power:.2f}")
+            power_label.config(bg='lightgreen')
+        else:
+            power_label.config(text="Watts: --")
+            power_label.config(bg='white')
+
+    except ValueError:
+        # Invalid input, do nothing
+        pass
+
+def reset_ohms_law():
+    volts_entry.delete(0, tk.END)
+    current_entry.delete(0, tk.END)
+    resistance_entry.delete(0, tk.END)
+    volts_entry.config(bg='white')
+    current_entry.config(bg='white')
+    resistance_entry.config(bg='white')
 
 # Function to toggle always on top
 def toggle_always_on_top():
@@ -94,10 +156,47 @@ instruction_text.insert(tk.END, "in meters", "italic_underline")
 instruction_text.insert(tk.END, " or vice versa.")
 instruction_text.config(state=tk.DISABLED)  # Make the text widget read-only
 instruction_text.pack(pady=(10, 0))
+
+
 # Ohm's Law Tab
 ohms_tab = ttk.Frame(tab_control)
 tab_control.add(ohms_tab, text='Ohms Law')
 # Add Ohm's Law widgets here
+
+# Voltage (E)
+volts_label = tk.Label(ohms_tab, text="E (Volts):")
+volts_label.pack(side=tk.TOP, anchor='w')
+volts_entry = tk.Entry(ohms_tab)
+volts_entry.pack(side=tk.TOP, anchor='w')
+volts_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
+
+# Current (I)
+current_label = tk.Label(ohms_tab, text="I (Current):")
+current_label.pack(side=tk.TOP, anchor='w')
+current_entry = tk.Entry(ohms_tab)
+current_entry.pack(side=tk.TOP, anchor='w')
+current_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
+
+# Resistance (R)
+resistance_label = tk.Label(ohms_tab, text="R (Resistance):")
+resistance_label.pack(side=tk.TOP, anchor='w')
+resistance_entry = tk.Entry(ohms_tab)
+resistance_entry.pack(side=tk.TOP, anchor='w')
+resistance_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
+
+volts_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
+current_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
+resistance_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
+
+# Power label
+power_label = tk.Label(ohms_tab, text="Watts: --")
+power_label.pack(side=tk.LEFT, padx=10)
+
+# Reset button (centered)
+reset_button = tk.Button(ohms_tab, text="Reset", command=reset_ohms_law)
+reset_button.pack(side=tk.LEFT, padx=10)
+
+
 
 # Power Tab
 power_tab = ttk.Frame(tab_control)
