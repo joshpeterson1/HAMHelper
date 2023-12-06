@@ -15,7 +15,8 @@ def save_config():
         'always_on_top': always_on_top_var.get(),
         'opacity': opacity_scale.get(),
         'window_width': root.winfo_width(),
-        'window_height': root.winfo_height()
+        'window_height': root.winfo_height(),
+        'live_calc': live_calc_enabled.get()
     }
     with open(config_file, 'w') as configfile:
         config.write(configfile)
@@ -37,6 +38,7 @@ def load_config():
         opacity_scale.set(config.getfloat('Settings', 'opacity', fallback=1.0))
         window_width = config.getint('Settings', 'window_width', fallback=int(screen_width * 0.105))
         window_height = config.getint('Settings', 'window_height', fallback=int(screen_height * 0.17))
+        live_calc_enabled.set(config.getboolean('Settings', 'live_calc', fallback=True))
         root.geometry(f"{window_width}x{window_height}")
         update_opacity(opacity_scale.get())
         toggle_always_on_top()
@@ -54,6 +56,8 @@ def calculate_wavelength(event):
 
 # Function to calculate Ohm's Law
 def calculate_ohms_law_and_power(): 
+    if not live_calc_enabled.get():
+        return
     try:
         E = volts_entry.get()
         I = current_entry.get()
@@ -200,7 +204,7 @@ instruction_text.pack(pady=(10, 0))
 
 # Ohm's Law Tab
 ohms_tab = ttk.Frame(tab_control)
-tab_control.add(ohms_tab, text='Ohms Law')
+tab_control.add(ohms_tab, text='Ohms')
 # Add Ohm's Law widgets here
 
 # Voltage (E)
@@ -239,11 +243,19 @@ watts_entry.bind("<KeyRelease>", lambda event: calculate_ohms_law_and_power())
 reset_button = tk.Button(ohms_tab, text="Reset", command=reset_ohms_law)
 reset_button.pack(side=tk.LEFT, padx=10)
 
+# Global variable to track the state of live calculation
+live_calc_enabled = tk.BooleanVar(value=True)
+
+# Checkbox for live calculation
+live_calc_checkbox = tk.Checkbutton(ohms_tab, text="Live Calc", var=live_calc_enabled)
+live_calc_checkbox.pack(side=tk.RIGHT, padx=10)
+
+
 
 
 # Power Tab
 power_tab = ttk.Frame(tab_control)
-tab_control.add(power_tab, text='Power')
+tab_control.add(power_tab, text='Moar Pwr')
 # Add Power calculation widgets here
 
 # Settings Tab
