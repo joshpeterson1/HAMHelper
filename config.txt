@@ -1,4 +1,8 @@
 [Settings]
-always_on_top = False
+always_on_top = True
 opacity = 1.0
-
+window_width = 249
+window_height = 378
+ohms_live_calc = True
+moar_live_calc = True
+moar_live_calc_delay = 1.0
